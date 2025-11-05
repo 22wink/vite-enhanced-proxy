@@ -18,7 +18,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "rimraf dist && tsup",
     "dev": "tsup --watch",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
