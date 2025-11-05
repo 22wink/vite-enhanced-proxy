@@ -18,6 +18,3 @@ export { ProxyEnv, LogLevel } from "./modules/types";
 
 // 导出日志工具
 export { createLogger, ProxyLogger, colors } from "./modules/logger";
-
-// 默认导出插件工厂函数
-export { createProxyPlugin as default } from "./modules/plugin";

@@ -14,4 +14,4 @@ export default defineConfig({
   banner: {
     js: "// vite-enhanced-proxy - A powerful Vite proxy plugin"
   }
-}); 
+});
