@@ -1,7 +1,7 @@
 import { pathToFileURL } from "url";
 import fs from "fs";
 import path from "path";
-import type { ProxyPluginUserConfig } from "./types";
+import type { ProxyPluginUserConfig } from "./types.js";
 
 // 支持的外部配置文件名
 const PROXY_CONFIG_FILES = [
@@ -42,4 +42,4 @@ export async function loadExternalProxyConfig(rootDir: string = process.cwd()): 
     }
   }
   return null;
-} 
+}

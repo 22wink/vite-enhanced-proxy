@@ -8,6 +8,26 @@ export enum ProxyEnv {
 // 允许的环境键：内置枚举或自定义字符串
 export type EnvKey = ProxyEnv | (string & {});
 
+// WebSocket 配置选项
+export interface WebSocketConfig {
+  // 是否启用 WebSocket 代理
+  enabled?: boolean;
+  // WebSocket 连接超时时间（毫秒）
+  timeout?: number;
+  // 是否记录 WebSocket 连接日志
+  logConnections?: boolean;
+  // 是否记录 WebSocket 消息日志
+  logMessages?: boolean;
+  // 最大消息日志长度
+  maxMessageLength?: number;
+  // 是否美化 JSON 消息
+  prettifyMessages?: boolean;
+  // 自定义 WebSocket 头部
+  headers?: Record<string, string>;
+  // WebSocket 子协议
+  protocols?: string | string[];
+}
+
 // 路由配置：字符串（仅目标）或对象（包含路径/重写）
 export type ProxyRouteConfig =
   | string
@@ -15,6 +35,8 @@ export type ProxyRouteConfig =
       target: string;
       path?: string; // 自定义匹配路径（不填时按键或默认规则推导）
       rewrite?: string; // 自定义重写前缀
+      // WebSocket 配置
+      ws?: WebSocketConfig;
     };
 
 // 兼容旧字段，同时支持任意键
@@ -56,6 +78,10 @@ export interface LoggerConfig {
   maxBodyLength?: number;
   prettifyJson?: boolean;
   showQueryParams?: boolean;
+  // WebSocket 日志配置
+  showWsConnections?: boolean;
+  showWsMessages?: boolean;
+  maxWsMessageLength?: number;
 }
 
 // 过滤器函数类型
@@ -66,12 +92,23 @@ export type ResponseFilter = (
   status: number
 ) => boolean;
 
+// WebSocket 过滤器函数类型
+export type WebSocketFilter = (url: string, protocols?: string | string[]) => boolean;
+
 // 中间件函数类型
 export type ProxyMiddleware = (
   proxyReq: any,
   req: any,
   res: any,
   options: any
+) => void | Promise<void>;
+
+// WebSocket 中间件函数类型
+export type WebSocketMiddleware = (
+  ws: any,
+  req: any,
+  socket: any,
+  head: Buffer
 ) => void | Promise<void>;
 
 // 插件配置选项（内部与直接传参使用）
@@ -86,9 +123,11 @@ export interface ProxyPluginOptions<TEnv extends string = EnvKey> {
   // 过滤器
   requestFilter?: RequestFilter;
   responseFilter?: ResponseFilter;
+  webSocketFilter?: WebSocketFilter;
 
   // 中间件
   middleware?: ProxyMiddleware[];
+  wsMiddleware?: WebSocketMiddleware[];
 
   // 自定义代理配置
   customProxyConfig?: Partial<ProxyOptions>;
@@ -101,6 +140,9 @@ export interface ProxyPluginOptions<TEnv extends string = EnvKey> {
 
   // 是否启用代理
   enabled?: boolean;
+
+  // WebSocket 全局配置
+  webSocket?: WebSocketConfig;
 }
 
 // 外部用户配置（外部文件 proxy.config.* 使用），与插件选项一致
@@ -119,4 +161,9 @@ export interface ProxyEvents {
   onProxyReq?: (proxyReq: any, req: any, res: any) => void;
   onProxyRes?: (proxyRes: any, req: any, res: any) => void;
   onError?: (err: Error, req: any, res: any) => void;
+  // WebSocket 事件
+  onWsOpen?: (ws: any, req: any) => void;
+  onWsMessage?: (data: any, req: any) => void;
+  onWsClose?: (code: number, reason: string, req: any) => void;
+  onWsError?: (err: Error, req: any) => void;
 }

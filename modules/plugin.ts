@@ -4,12 +4,15 @@ import type {
   ProxyTargets,
   PluginState,
   ProxyMiddleware,
+  WebSocketMiddleware,
+  WebSocketFilter,
   EnvKey,
-  ProxyRouteConfig
-} from "./types";
-import { ProxyEnv, LogLevel } from "./types";
-import { createLogger, ProxyLogger } from "./logger";
-import { loadExternalProxyConfig } from "./config-loader";
+  ProxyRouteConfig,
+  WebSocketConfig
+} from "./types.js";
+import { ProxyEnv, LogLevel } from "./types.js";
+import { createLogger, ProxyLogger } from "./logger.js";
+import { loadExternalProxyConfig } from "./config-loader.js";
 
 // 默认代理目标配置（置空，避免写死）
 const DEFAULT_PROXY_TARGETS: ProxyTargets<ProxyEnv> = {} as ProxyTargets<ProxyEnv>;
@@ -18,12 +21,14 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
   private state: PluginState<TEnv>;
   private logger: ProxyLogger;
   private middleware: ProxyMiddleware[];
+  private wsMiddleware: WebSocketMiddleware[];
   private requestFilter?: (url: string, method: string) => boolean;
   private responseFilter?: (
     url: string,
     method: string,
     status: number
   ) => boolean;
+  private webSocketFilter?: WebSocketFilter;
 
   constructor(private options: ProxyPluginOptions<TEnv> = {}) {
     // 初始化状态
@@ -34,10 +39,12 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
 
     // 初始化中间件
     this.middleware = this.options.middleware || [];
+    this.wsMiddleware = this.options.wsMiddleware || [];
 
     // 设置过滤器
     this.requestFilter = this.options.requestFilter;
     this.responseFilter = this.options.responseFilter;
+    this.webSocketFilter = this.options.webSocketFilter;
 
     // 注意：不在构造函数中输出日志，避免打包时也显示
   }
@@ -64,6 +71,9 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
         maxBodyLength: 1000,
         prettifyJson: true,
         showQueryParams: false,
+        showWsConnections: true,
+        showWsMessages: false,
+        maxWsMessageLength: 1000,
         ...this.options.logger
       },
       enabled: this.options.enabled !== false
@@ -89,16 +99,56 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
     }
   }
 
+  private async executeWebSocketMiddleware(
+    ws: any,
+    req: any,
+    socket: any,
+    head: Buffer
+  ): Promise<void> {
+    for (const middleware of this.wsMiddleware) {
+      try {
+        await middleware(ws, req, socket, head);
+      } catch (error) {
+        this.logger.error(`WebSocket 中间件执行失败: ${error}`);
+      }
+    }
+  }
+
+  private getWebSocketConfig(routeConfig?: ProxyRouteConfig): WebSocketConfig {
+    const defaultConfig: WebSocketConfig = {
+      enabled: true,
+      timeout: 30000,
+      logConnections: true,
+      logMessages: false,
+      maxMessageLength: 1000,
+      prettifyMessages: true,
+      headers: {},
+      protocols: undefined,
+      ...this.options.webSocket
+    };
+
+    if (typeof routeConfig === 'object' && routeConfig.ws) {
+      return { ...defaultConfig, ...routeConfig.ws };
+    }
+
+    return defaultConfig;
+  }
+
   private createProxyConfig(
     target: string,
-    rewritePath?: string
+    rewritePath?: string,
+    routeConfig?: ProxyRouteConfig
   ): ProxyOptions {
     const startTime = new Map<string, number>();
+    const wsConfig = this.getWebSocketConfig(routeConfig);
 
     return {
       target,
       changeOrigin: true,
+      // 启用 WebSocket 支持
+      ws: wsConfig.enabled,
       rewrite: rewritePath ? this.createRewriteRule(rewritePath) : undefined,
+      timeout: wsConfig.timeout,
       ...this.options.customProxyConfig,
       configure: (proxy, options) => {
         // 请求开始
@@ -108,7 +158,6 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
           const requestKey = `${method}:${originalUrl}`;
 
           // 构建完整的真实后端URL
-          // 需要应用rewrite规则来重新构建完整URL，保持与响应阶段一致
           let rewrittenPath = originalUrl;
           if (rewritePath) {
             rewrittenPath = this.createRewriteRule(rewritePath)(originalUrl);
@@ -129,35 +178,8 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
           // 执行中间件
           await this.executeMiddleware(proxyReq, req, res, options);
 
-          // 记录基础请求日志 - 显示完整的真实后端URL
+          // 记录基础请求日志
           this.logger.logRequest(method, fullUrl);
-
-          // 记录详细请求信息（当启用DEBUG级别时）
-          if (this.logger.shouldLog(4)) {
-            // LogLevel.DEBUG = 4
-            const requestHeaders = proxyReq.getHeaders
-              ? proxyReq.getHeaders()
-              : req.headers;
-            let requestBody: any = null;
-
-            // 尝试捕获请求体 (需要在中间件中处理)
-            if ((req as any).body) {
-              requestBody = (req as any).body;
-            } else if (
-              method === "POST" ||
-              method === "PUT" ||
-              method === "PATCH"
-            ) {
-              // 对于有请求体的方法，提示需要中间件支持
-              requestBody = "请求体数据需要在中间件中捕获";
-            }
-
-            this.logger.logDetailedRequest(method, fullUrl, {
-              headers: requestHeaders,
-              body: requestBody,
-              queryParams: true
-            });
-          }
         });
 
         // 响应返回
@@ -168,7 +190,6 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
           const requestKey = `${method}:${originalUrl}`;
 
           // 构建完整的真实后端URL（响应阶段）
-          // 需要应用rewrite规则来重新构建完整URL
           let rewrittenPath = originalUrl;
           if (rewritePath) {
             rewrittenPath = this.createRewriteRule(rewritePath)(originalUrl);
@@ -189,83 +210,70 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
             return;
           }
 
-          // 记录基础响应日志 - 显示完整的真实后端URL
+          // 记录基础响应日志
           this.logger.logResponse(method, fullResponseUrl, status, duration);
-
-          // 记录详细响应信息（当启用DEBUG级别时）
-          if (this.logger.shouldLog(4)) {
-            // LogLevel.DEBUG = 4
-            const responseHeaders = proxyRes.headers;
-            let responseBody: any = null;
-
-            // 检查是否是 SSE 流式响应
-            const contentType = proxyRes.headers['content-type'] || '';
-            const isSSE = contentType.includes('text/event-stream');
-
-            // 对于 SSE 响应，不要尝试读取响应体，因为它是持续的流
-            if (isSSE) {
-              this.logger.logDetailedResponse(
-                method,
-                fullResponseUrl,
-                status,
-                {
-                  headers: responseHeaders,
-                  body: "[SSE Stream - Not Captured]",
-                  duration
-                }
-              );
-            } else if (proxyRes.readable) {
-              // 尝试捕获普通响应体
-              let chunks: Buffer[] = [];
-              proxyRes.on("data", (chunk: Buffer) => {
-                chunks.push(chunk);
-              });
-
-              proxyRes.on("end", () => {
-                try {
-                  const bodyBuffer = Buffer.concat(chunks);
-                  const bodyText = bodyBuffer.toString("utf8");
-
-                  // 尝试解析JSON
-                  try {
-                    responseBody = JSON.parse(bodyText);
-                  } catch {
-                    responseBody = bodyText;
-                  }
-
-                  this.logger.logDetailedResponse(
-                    method,
-                    fullResponseUrl,
-                    status,
-                    {
-                      headers: responseHeaders,
-                      body: responseBody,
-                      duration
-                    }
-                  );
-                } catch (error) {
-                  this.logger.logDetailedResponse(
-                    method,
-                    fullResponseUrl,
-                    status,
-                    {
-                      headers: responseHeaders,
-                      body: `响应体解析失败: ${error}`,
-                      duration
-                    }
-                  );
-                }
-              });
-            } else {
-              // 如果响应不可读，仅记录头部信息
-              this.logger.logDetailedResponse(method, fullResponseUrl, status, {
-                headers: responseHeaders,
-                body: "响应体不可读或已被消费",
-                duration
-              });
-            }
-          }
         });
+
+        // WebSocket 支持配置
+        if (wsConfig.enabled) {
+          // 设置自定义 WebSocket 配置
+          if (wsConfig.headers && Object.keys(wsConfig.headers).length > 0) {
+            const originalHeaders = this.options.customProxyConfig?.headers;
+            this.options.customProxyConfig = {
+              ...this.options.customProxyConfig,
+              headers: {
+                ...originalHeaders,
+                ...wsConfig.headers
+              }
+            };
+          }
+
+          // WebSocket 连接建立日志
+          proxy.on("proxyReqWs", (_proxyReq: any, req: any, socket: any, _options: any, head: any) => {
+            const originalUrl = req.url || "";
+            
+            // 应用 WebSocket 过滤器
+            if (this.webSocketFilter && !this.webSocketFilter(originalUrl)) {
+              return;
+            }
+
+            // 构建完整的 WebSocket URL
+            let rewrittenPath = originalUrl;
+            if (rewritePath) {
+              rewrittenPath = this.createRewriteRule(rewritePath)(originalUrl);
+            }
+            const wsTarget = target.replace(/^http/, 'ws');
+            const fullWsUrl = `${wsTarget}${rewrittenPath}`;
+
+            // 记录 WebSocket 连接日志
+            if (wsConfig.logConnections) {
+              this.logger.info(`🔗 WebSocket 连接升级: ${fullWsUrl}`);
+            }
+
+            // 执行 WebSocket 中间件
+            this.executeWebSocketMiddleware(null, req, socket, head).catch((error) => {
+              this.logger.error(`WebSocket 中间件执行失败: ${error}`);
+            });
+          });
+
+          // WebSocket 错误处理
+          proxy.on("error", (err: any, req: any, _res: any) => {
+            // 检查是否是 WebSocket 相关错误
+            if (req.headers && req.headers.upgrade === 'websocket') {
+              const originalUrl = req.url || "";
+              let rewrittenPath = originalUrl;
+              if (rewritePath) {
+                rewrittenPath = this.createRewriteRule(rewritePath)(originalUrl);
+              }
+              const wsTarget = target.replace(/^http/, 'ws');
+              const fullWsUrl = `${wsTarget}${rewrittenPath}`;
+
+              if (wsConfig.logConnections) {
+                this.logger.error(`❌ WebSocket 连接失败: ${fullWsUrl} - ${err.message}`);
+              }
+            }
+          });
+        }
 
         // 错误处理
         proxy.on("error", (err, req) => {
@@ -283,7 +291,7 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
           // 清理计时器
           startTime.delete(requestKey);
 
-          // 记录错误日志 - 显示完整的真实后端URL
+          // 记录错误日志
           this.logger.logError(method, fullErrorUrl, err);
         });
 
@@ -339,8 +347,10 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
 
       if (!target || !routePath) continue;
 
-      proxy[routePath] = this.createProxyConfig(target, rewritePath);
-      this.logger.debug(`添加代理: ${key} -> ${routePath} => ${target} (rewrite: ${rewritePath})`);
+      proxy[routePath] = this.createProxyConfig(target, rewritePath, value);
+      
+      const wsStatus = typeof value === 'object' && value.ws?.enabled === false ? '❌' : '✅';
+      this.logger.debug(`添加代理: ${key} -> ${routePath} => ${target} (rewrite: ${rewritePath}) [WebSocket: ${wsStatus}]`);
     }
 
     return proxy;
@@ -369,8 +379,10 @@ class ViteProxyPlugin<TEnv extends string = EnvKey> {
             this.state = this.initializeState();
             this.logger = createLogger(this.options.logger);
             this.middleware = this.options.middleware || [];
+            this.wsMiddleware = this.options.wsMiddleware || [];
             this.requestFilter = this.options.requestFilter;
             this.responseFilter = this.options.responseFilter;
+            this.webSocketFilter = this.options.webSocketFilter;
             this.logger.info("已加载外部 proxy.config 配置");
           }
 
@@ -432,5 +444,5 @@ export function createProxyPlugin<TEnv extends string = EnvKey>(options: ProxyPl
 export { ViteProxyPlugin };
 
 // 重新导出类型和枚举
-export * from "./types";
-export * from "./logger";
+export * from "./types.js";
+export * from "./logger.js";
