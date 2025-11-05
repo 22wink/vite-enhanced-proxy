@@ -18,8 +18,14 @@
 ## 📦 安装
 
 ```bash
-# 将插件文件放入项目的 build/ 目录
-# 或者直接复制源代码到你的项目中
+# 使用 npm
+npm install vite-enhanced-proxy
+
+# 使用 pnpm
+pnpm add vite-enhanced-proxy
+
+# 使用 yarn
+yarn add vite-enhanced-proxy
 ```
 
 ## 🚀 快速开始
@@ -29,7 +35,7 @@
 ```typescript
 // vite.config.ts
 import { defineConfig } from "vite";
-import { createProxyPlugin, ProxyEnv } from "./build";
+import { createProxyPlugin, ProxyEnv } from "vite-enhanced-proxy";
 
 export default defineConfig({
   plugins: [
@@ -45,7 +51,7 @@ export default defineConfig({
 
 ```typescript
 import { defineConfig } from "vite";
-import { createProxyPlugin, ProxyEnv, LogLevel } from "./build";
+import { createProxyPlugin, ProxyEnv, LogLevel } from "vite-enhanced-proxy";
 
 export default defineConfig({
   plugins: [
@@ -179,7 +185,7 @@ createProxyPlugin({
 
 ```ts
 // proxy.config.ts
-import { ProxyEnv } from "./build";
+import { ProxyEnv } from "vite-enhanced-proxy";
 
 export default {
   env: ProxyEnv.Local,
@@ -220,7 +226,7 @@ export default {
 ```ts
 // 枚举方式（推荐有明确环境集合时）
 import { defineConfig } from "vite";
-import { createProxyPlugin } from "./build";
+import { createProxyPlugin } from "vite-enhanced-proxy";
 
 export enum MyEnv {
   Dev = "dev",
@@ -252,7 +258,7 @@ export default defineConfig({
 ```ts
 // 字符串字面量方式（快速/灵活）
 import { defineConfig } from "vite";
-import { createProxyPlugin } from "./build";
+import { createProxyPlugin } from "vite-enhanced-proxy";
 
 type Env = "dev" | "test" | "prod";
 
@@ -392,7 +398,7 @@ createProxyPlugin({
 ### 运行时控制
 
 ```typescript
-import { ViteProxyPlugin } from "./build";
+import { ViteProxyPlugin } from "vite-enhanced-proxy";
 
 const plugin = new ViteProxyPlugin({
   env: ProxyEnv.Local
@@ -431,7 +437,7 @@ console.log("当前环境:", state.env);
 ### TS 示例（proxy.config.ts）
 
 ```ts
-import { defineProxyConfig, LogLevel } from "./build";
+import { defineProxyConfig, LogLevel } from "vite-enhanced-proxy";
 
 export default defineProxyConfig({
   env: "dev",
