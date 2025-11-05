@@ -1,4 +1,8 @@
-# Vite Proxy Plugin
+# vite-enhanced-proxy
+
+![npm version](https://img.shields.io/npm/v/vite-enhanced-proxy.svg)
+![npm downloads](https://img.shields.io/npm/dm/vite-enhanced-proxy.svg)
+![license](https://img.shields.io/npm/l/vite-enhanced-proxy.svg)
 
 一个功能强大的 Vite 代理插件，提供彩色日志、环境切换、过滤器、中间件等高级功能。
 
