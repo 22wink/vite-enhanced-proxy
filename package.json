@@ -1,6 +1,6 @@
 {
   "name": "vite-enhanced-proxy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "一个功能强大的 Vite 代理插件，提供彩色日志、环境切换、过滤器、中间件等高级功能",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -56,4 +56,4 @@
   "engines": {
     "node": ">=16.0.0"
   }
-} 
+}
