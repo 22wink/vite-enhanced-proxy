@@ -17,6 +17,7 @@ import {
   createWebSocketClient,
   type WebSocketDisconnectReason,
 } from "./modules/websocketClient";
+import { enhanceSelectGroup } from "./modules/enhancedSelect";
 
 type DomSelectors = {
   tabs: NodeListOf<HTMLButtonElement>;
@@ -166,6 +167,12 @@ function createHttpsOptions(
 
 function bootstrap() {
   const dom = queryDom();
+  enhanceSelectGroup([
+    dom.endpointSelect,
+    dom.wsEndpointSelect,
+    dom.proxyEndpointSelect,
+    dom.httpMethodSelect,
+  ]);
   setupTabs(dom.tabs, dom.tabContents);
 
   const statusManager = createStatusManager({

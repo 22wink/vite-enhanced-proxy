@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>代理测试页面</title>
-  </head>
-  <body>
-    <div class="container">
-      <h1>🚀代理测试</h1>
+</head>
+<body>
+  <div class="container">
+      <header class="hero">
+        <p class="eyebrow">Vite Enhanced Proxy · Playground</p>
+        <h1>流畅而优雅的实时连接实验室</h1>
+      </header>
 
       <div class="tabs">
         <button class="tab active" data-tab="sse">SSE 测试</button>
@@ -17,37 +20,37 @@
 
       <!-- SSE 测试标签页 -->
       <div class="tab-content active" id="sse-tab">
-        <div class="stats">
-          <div class="stat-card">
-            <h3>连接状态</h3>
-            <div class="value" id="connectionStatus">未连接</div>
-          </div>
-          <div class="stat-card">
-            <h3>接收消息数</h3>
-            <div class="value" id="messageCount">0</div>
-          </div>
-          <div class="stat-card">
-            <h3>连接时长</h3>
-            <div class="value" id="connectionTime">0s</div>
-          </div>
-        </div>
+    <div class="stats">
+      <div class="stat-card">
+        <h3>连接状态</h3>
+        <div class="value" id="connectionStatus">未连接</div>
+      </div>
+      <div class="stat-card">
+        <h3>接收消息数</h3>
+        <div class="value" id="messageCount">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>连接时长</h3>
+        <div class="value" id="connectionTime">0s</div>
+      </div>
+    </div>
 
-        <div class="controls">
-          <div class="endpoint-selector">
-            <label for="endpoint">选择 SSE 端点:</label>
-            <select id="endpoint">
-              <option value="/api/sse">基础 SSE 端点</option>
-              <option value="/api/sse/custom-retry">自定义重试间隔</option>
-              <option value="/api/sse/error">错误测试端点</option>
-            </select>
-          </div>
+    <div class="controls">
+      <div class="endpoint-selector">
+            <label for="endpoint">选择 SSE 端点</label>
+            <select id="endpoint" class="form-select" data-enhance-select>
+          <option value="/api/sse">基础 SSE 端点</option>
+          <option value="/api/sse/custom-retry">自定义重试间隔</option>
+          <option value="/api/sse/error">错误测试端点</option>
+        </select>
+      </div>
 
-          <div class="button-group">
-            <button class="btn-connect" id="connectBtn">连接 SSE</button>
-            <button class="btn-disconnect" id="disconnectBtn" disabled>断开连接</button>
-            <button class="btn-broadcast" id="broadcastBtn">发送广播消息</button>
-            <button class="btn-clear" id="clearBtn">清空消息</button>
-          </div>
+      <div class="button-group">
+        <button class="btn-connect" id="connectBtn">连接 SSE</button>
+        <button class="btn-disconnect" id="disconnectBtn" disabled>断开连接</button>
+        <button class="btn-broadcast" id="broadcastBtn">发送广播消息</button>
+        <button class="btn-clear" id="clearBtn">清空消息</button>
+      </div>
 
           <div class="status disconnected" id="status">⚠️ 未连接</div>
         </div>
@@ -68,8 +71,8 @@
 
         <div class="controls">
           <div class="endpoint-selector">
-            <label for="wsEndpoint">选择 WebSocket 端点:</label>
-            <select id="wsEndpoint">
+            <label for="wsEndpoint">选择 WebSocket 端点</label>
+            <select id="wsEndpoint" class="form-select" data-enhance-select>
               <option value="/ws" data-source="proxy" data-protocol="WS">
                 通过代理 - WS (/ws)
               </option>
@@ -99,9 +102,10 @@
           </div>
 
           <div class="form-group">
-            <label for="wsMessage">消息内容:</label>
+            <label for="wsMessage">消息内容</label>
             <input
               id="wsMessage"
+              class="form-input"
               type="text"
               placeholder='{"action":"ping"} 或 任意文本'
             />
@@ -133,16 +137,16 @@
         <div class="controls">
           <div class="form-row">
             <div class="form-group">
-              <label for="proxyEndpoint">代理端点:</label>
-              <select id="proxyEndpoint">
+            <label for="proxyEndpoint">代理端点</label>
+            <select id="proxyEndpoint" class="form-select" data-enhance-select>
                 <option value="/api/http-test">HTTP 代理测试 (/api)</option>
                 <option value="/api-https/https-test">HTTPS 代理测试 (/api-https)</option>
                 <option value="/api/test">普通 API 测试</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="httpMethod">HTTP 方法:</label>
-              <select id="httpMethod">
+            <label for="httpMethod">HTTP 方法</label>
+            <select id="httpMethod" class="form-select" data-enhance-select>
                 <option value="GET">GET</option>
                 <option value="POST">POST</option>
                 <option value="PUT">PUT</option>
@@ -153,19 +157,33 @@
           </div>
 
           <div class="form-group">
-            <label for="requestBody">请求体 (JSON):</label>
-            <textarea id="requestBody" placeholder='{"key": "value"}'></textarea>
+            <label for="requestBody">请求体 (JSON)</label>
+            <textarea
+              id="requestBody"
+              class="form-textarea"
+              placeholder='{"key": "value"}'
+            ></textarea>
           </div>
 
           <div class="form-group">
-            <label>HTTPS 选项 (仅用于 HTTPS 代理):</label>
-            <div class="checkbox-group">
-              <input type="checkbox" id="rejectUnauthorized" checked />
-              <label for="rejectUnauthorized">rejectUnauthorized (验证证书)</label>
-            </div>
-            <div class="checkbox-group" style="margin-top: 8px">
-              <input type="checkbox" id="secure" checked />
-              <label for="secure">secure (启用 TLS)</label>
+            <label>HTTPS 选项（仅 HTTPS 代理）</label>
+            <div class="checkbox-stack">
+              <label class="checkbox">
+                <input type="checkbox" id="rejectUnauthorized" checked />
+                <span class="checkbox-highlight" aria-hidden="true"></span>
+                <span class="checkbox-content">
+                  <strong>rejectUnauthorized</strong>
+                  <small>严格验证后端证书链</small>
+                </span>
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" id="secure" checked />
+                <span class="checkbox-highlight" aria-hidden="true"></span>
+                <span class="checkbox-content">
+                  <strong>secure</strong>
+                  <small>启用 TLS，保障代理链路安全</small>
+                </span>
+              </label>
             </div>
           </div>
 
@@ -173,16 +191,16 @@
             <button class="btn-send" id="sendProxyBtn">发送代理请求</button>
             <button class="btn-clear" id="clearProxyBtn">清空日志</button>
           </div>
-        </div>
-      </div>
-
-      <div class="messages">
-        <h2>📨 消息日志</h2>
-        <div id="messageList"></div>
       </div>
     </div>
 
+    <div class="messages">
+      <h2>📨 消息日志</h2>
+      <div id="messageList"></div>
+    </div>
+  </div>
+
     <script type="module" src="/src/main.ts"></script>
-  </body>
+</body>
 </html>
 
