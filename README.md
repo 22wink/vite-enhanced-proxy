@@ -4,39 +4,42 @@
 ![npm downloads](https://img.shields.io/npm/dm/vite-enhanced-proxy.svg)
 ![license](https://img.shields.io/npm/l/vite-enhanced-proxy.svg)
 
-一个功能强大的 Vite 代理插件，提供彩色日志、环境切换、过滤器、中间件等高级功能。
+English | [中文](README.zh_CN.md)
+A powerful Vite proxy plugin with advanced features including colored logs, environment switching, filters, middleware, and more.
 
-## ✨ 特性
+## ✨ Features
 
-- 🎨 **彩色日志** - 美观的控制台输出，支持自定义颜色
-- 🔄 **环境切换** - 轻松在多个后端环境间切换
-- 📊 **性能监控** - 自动记录请求响应时间
-- 🎯 **智能过滤** - 支持请求/响应过滤器
-- 🔧 **中间件支持** - 可扩展的请求处理管道
-- 📝 **完整的 TypeScript 支持** - 完善的类型定义
-- ⚡ **零依赖** - 仅使用 Node.js 内置功能
-- 📋 **详细数据记录** - 支持记录请求/响应头、请求体、响应体等详细信息
-- 🔍 **查询参数显示** - 自动解析并显示URL查询参数
-- 🆕 **动态 targets 与对象化配置** - 不再局限于 v1/v2/v3，任意键与对象式路由
+- 🎨 **Colored Logs** - Beautiful console output with customizable colors
+- 🔄 **Environment Switching** - Easily switch between multiple backend environments
+- 📊 **Performance Monitoring** - Automatically record request/response times
+- 🎯 **Smart Filtering** - Support for request/response filters
+- 🔧 **Middleware Support** - Extensible request processing pipeline
+- 📝 **Full TypeScript Support** - Complete type definitions
+- ⚡ **Zero Dependencies** - Uses only Node.js built-in features
+- 📋 **Detailed Data Logging** - Support for logging request/response headers, request/response bodies, and more
+- 🔍 **Query Parameter Display** - Automatically parse and display URL query parameters
+- 🆕 **Dynamic Targets & Object-based Configuration** - No longer limited to v1/v2/v3, supports arbitrary keys and object-based routing
+- 🔌 **WebSocket Support** - Full WebSocket proxy support, including connection logging and message recording
+- 📡 **SSE Support** - Server-Sent Events proxy support, real-time event stream processing
 
-## 📦 安装
+## 📦 Installation
 
 ```bash
-# 使用 npm
+# Using npm
 npm install vite-enhanced-proxy
 
-# 使用 pnpm
+# Using pnpm
 pnpm add vite-enhanced-proxy
 
-# 使用 yarn
+# Using yarn
 yarn add vite-enhanced-proxy
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 基础用法
+### Basic Usage
 
-**TypeScript 示例：**
+**TypeScript Example:**
 
 ```typescript
 // vite.config.ts
@@ -45,7 +48,7 @@ import { createProxyPlugin, ProxyEnv } from "vite-enhanced-proxy";
 
 export default defineConfig({
   plugins: [
-    // 最简单的用法
+    // Simplest usage
     createProxyPlugin({
       env: ProxyEnv.Local
     })
@@ -53,7 +56,7 @@ export default defineConfig({
 });
 ```
 
-**JavaScript 示例：**
+**JavaScript Example:**
 
 ```javascript
 // vite.config.js (ES Module)
@@ -62,7 +65,7 @@ import { createProxyPlugin, ProxyEnv } from "vite-enhanced-proxy";
 
 export default defineConfig({
   plugins: [
-    // 最简单的用法
+    // Simplest usage
     createProxyPlugin({
       env: ProxyEnv.Local
     })
@@ -77,7 +80,7 @@ const { createProxyPlugin, ProxyEnv } = require("vite-enhanced-proxy");
 
 module.exports = defineConfig({
   plugins: [
-    // 最简单的用法
+    // Simplest usage
     createProxyPlugin({
       env: ProxyEnv.Local
     })
@@ -85,7 +88,7 @@ module.exports = defineConfig({
 });
 ```
 
-### 完整配置示例
+### Complete Configuration Example
 
 ```typescript
 import { defineConfig } from "vite";
@@ -94,18 +97,18 @@ import { createProxyPlugin, ProxyEnv, LogLevel } from "vite-enhanced-proxy";
 export default defineConfig({
   plugins: [
     createProxyPlugin({
-      // 环境配置
+      // Environment configuration
       env: ProxyEnv.Local,
 
-      // 日志配置
+      // Logger configuration
       logger: {
         level: LogLevel.DEBUG,
         colorful: true,
         timestamp: true,
         showMethod: true,
         showStatus: true,
-        prefix: "[API代理]",
-        // 详细信息配置
+        prefix: "[API Proxy]",
+        // Detailed information configuration
         showRequestHeaders: true,
         showRequestBody: true,
         showResponseHeaders: true,
@@ -115,15 +118,15 @@ export default defineConfig({
         prettifyJson: true
       },
 
-      // 启用/禁用
+      // Enable/Disable
       enabled: true,
       devOnly: true,
 
-      // 过滤器
+      // Filters
       requestFilter: (url, method) => url.includes("/api/"),
       responseFilter: (url, method, status) => status >= 400,
 
-      // 自定义代理配置
+      // Custom proxy configuration
       customProxyConfig: {
         timeout: 30000
       }
@@ -132,10 +135,10 @@ export default defineConfig({
 });
 ```
 
-### 详细日志配置示例
+### Detailed Log Configuration Example
 
 ```typescript
-// 仅显示请求详情
+// Show only request details
 createProxyPlugin({
   env: ProxyEnv.Local,
   logger: {
@@ -148,7 +151,7 @@ createProxyPlugin({
   }
 });
 
-// 仅显示响应详情
+// Show only response details
 createProxyPlugin({
   env: ProxyEnv.Local,
   logger: {
@@ -157,12 +160,12 @@ createProxyPlugin({
     showRequestBody: false,
     showResponseHeaders: true,
     showResponseBody: true,
-    maxBodyLength: 5000, // 显示更长的响应体
+    maxBodyLength: 5000, // Show longer response body
     prettifyJson: true
   }
 });
 
-// 完全详细模式
+// Full detailed mode
 createProxyPlugin({
   env: ProxyEnv.Local,
   logger: {
@@ -178,48 +181,59 @@ createProxyPlugin({
 });
 ```
 
-## 🎯 配置选项
+## 🎯 Configuration Options
 
 ### ProxyPluginOptions
 
-| 选项                | 类型                     | 默认值           | 描述               |
-| ------------------- | ------------------------ | ---------------- | ------------------ |
-| `env`               | `ProxyEnv`               | `ProxyEnv.Local` | 代理环境           |
-| `targets`           | `Partial<ProxyTargets>`  | -                | 自定义代理目标     |
-| `logger`            | `LoggerConfig`           | -                | 日志配置           |
-| `requestFilter`     | `RequestFilter`          | -                | 请求过滤器         |
-| `responseFilter`    | `ResponseFilter`         | -                | 响应过滤器         |
-| `middleware`        | `ProxyMiddleware[]`      | `[]`             | 中间件数组         |
-| `customProxyConfig` | `Partial<ProxyOptions>`  | -                | 自定义代理配置     |
-| `rewriteRules`      | `Record<string, string>` | -                | URL重写规则        |
-| `enabled`           | `boolean`                | `true`           | 是否启用代理       |
-| `devOnly`           | `boolean`                | `false`          | 仅在开发模式下启用 |
+| Option              | Type                      | Default           | Description                    |
+| ------------------- | ------------------------- | ----------------- | ------------------------------ |
+| `env`               | `ProxyEnv`                | `ProxyEnv.Local`  | Proxy environment              |
+| `targets`           | `Partial<ProxyTargets>`   | -                 | Custom proxy targets           |
+| `logger`            | `LoggerConfig`            | -                 | Logger configuration           |
+| `requestFilter`     | `RequestFilter`           | -                 | Request filter                 |
+| `responseFilter`    | `ResponseFilter`          | -                 | Response filter                |
+| `middleware`        | `ProxyMiddleware[]`       | `[]`              | Middleware array               |
+| `wsMiddleware`      | `WebSocketMiddleware[]`   | `[]`              | WebSocket middleware array     |
+| `sseMiddleware`     | `SSEMiddleware[]`         | `[]`              | SSE middleware array           |
+| `webSocketFilter`   | `WebSocketFilter`         | -                 | WebSocket filter               |
+| `customProxyConfig` | `Partial<ProxyOptions>`   | -                 | Custom proxy configuration     |
+| `rewriteRules`      | `Record<string, string>`  | -                 | URL rewrite rules              |
+| `webSocket`         | `WebSocketConfig`         | -                 | Global WebSocket configuration  |
+| `sse`               | `SSEConfig`               | -                 | Global SSE configuration       |
+| `enabled`           | `boolean`                 | `true`            | Whether to enable proxy        |
+| `devOnly`           | `boolean`                 | `false`           | Enable only in development mode |
 
 ### LoggerConfig
 
-| 选项                  | 类型       | 默认值          | 描述                |
-| --------------------- | ---------- | --------------- | ------------------- |
-| `level`               | `LogLevel` | `LogLevel.INFO` | 日志级别            |
-| `colorful`            | `boolean`  | `true`          | 是否启用颜色        |
-| `timestamp`           | `boolean`  | `true`          | 显示时间戳          |
-| `showMethod`          | `boolean`  | `true`          | 显示HTTP方法        |
-| `showStatus`          | `boolean`  | `true`          | 显示状态码          |
-| `showError`           | `boolean`  | `true`          | 显示错误信息        |
-| `prefix`              | `string`   | `'[Proxy]'`     | 日志前缀            |
-| `showRequestHeaders`  | `boolean`  | `false`         | 显示请求头详情      |
-| `showRequestBody`     | `boolean`  | `false`         | 显示请求体数据      |
-| `showResponseHeaders` | `boolean`  | `false`         | 显示响应头详情      |
-| `showResponseBody`    | `boolean`  | `false`         | 显示响应体数据      |
-| `maxBodyLength`       | `number`   | `1000`          | 请求/响应体最大长度 |
-| `prettifyJson`        | `boolean`  | `true`          | 美化JSON格式显示    |
-| `showQueryParams`     | `boolean`  | `false`         | 显示查询参数        |
+| Option                  | Type       | Default          | Description                        |
+| ----------------------- | ---------- | ---------------- | ---------------------------------- |
+| `level`                 | `LogLevel` | `LogLevel.INFO`  | Log level                          |
+| `colorful`              | `boolean`  | `true`           | Whether to enable colors           |
+| `timestamp`             | `boolean`  | `true`           | Show timestamp                     |
+| `showMethod`             | `boolean`  | `true`           | Show HTTP method                   |
+| `showStatus`             | `boolean`  | `true`           | Show status code                   |
+| `showError`              | `boolean`  | `true`           | Show error information             |
+| `prefix`                | `string`   | `'[Proxy]'`      | Log prefix                         |
+| `showRequestHeaders`     | `boolean`  | `false`          | Show request header details        |
+| `showRequestBody`        | `boolean`  | `false`          | Show request body data             |
+| `showResponseHeaders`    | `boolean`  | `false`          | Show response header details       |
+| `showResponseBody`       | `boolean`  | `false`          | Show response body data            |
+| `maxBodyLength`          | `number`   | `1000`           | Maximum length of request/response body |
+| `prettifyJson`           | `boolean`  | `true`           | Prettify JSON format display       |
+| `showQueryParams`        | `boolean`  | `false`          | Show query parameters              |
+| `showWsConnections`      | `boolean`  | `false`          | Show WebSocket connection logs     |
+| `showWsMessages`         | `boolean`  | `false`          | Show WebSocket message logs        |
+| `maxWsMessageLength`     | `number`   | `1000`           | Maximum WebSocket message length   |
+| `showSseConnections`     | `boolean`  | `false`          | Show SSE connection logs           |
+| `showSseMessages`        | `boolean`  | `false`          | Show SSE message logs              |
+| `maxSseMessageLength`    | `number`   | `1000`           | Maximum SSE message length         |
 
-## 🆕 动态 targets 与对象化配置
+## 🆕 Dynamic Targets & Object-based Configuration
 
-插件现在支持“任意键 + 字符串或对象”的路由定义方式，兼容旧的 `v1/v2/v3` 字段：
+The plugin now supports "arbitrary keys + string or object" routing definition, compatible with the old `v1/v2/v3` fields:
 
-- **字符串形式**：值为目标地址；路径按键名推导（`v3 -> /api/v3`、`v2 -> /api`、`v1 -> /api/v1`、其他键 -> `/{key}`）。
-- **对象形式**：可独立配置 `target`、`path`、`rewrite`，三者相互独立；`rewriteRules` 仍可按路径覆盖。
+- **String form**: Value is the target address; path is derived from the key name (`v3 -> /api/v3`, `v2 -> /api`, `v1 -> /api/v1`, other keys -> `/{key}`).
+- **Object form**: Can independently configure `target`, `path`, `rewrite`, all three are independent; `rewriteRules` can still override by path.
 
 ```ts
 // proxy.config.ts
@@ -229,40 +243,40 @@ export default {
   env: ProxyEnv.Local,
   targets: {
     [ProxyEnv.Local]: {
-      // 旧字段仍可用（路径自动映射）
+      // Old fields still available (path auto-mapped)
       v3: "http://localhost:8000/api/v3/backend",
       v2: "http://localhost:8000/api/backend",
       v1: "http://localhost:8000/api/v1/backend",
 
-      // 新增任意键（字符串）：自动推导路径为 /flow
+      // New arbitrary keys (string): automatically derive path as /flow
       flow: "http://localhost:8002",
 
-      // 对象形式：完全自定义
+      // Object form: fully customizable
       auth: { target: "http://localhost:9000", path: "/api/auth", rewrite: "/auth" },
 
-      // 以 "/" 开头的键可直接作为路径
+      // Keys starting with "/" can be used directly as paths
       "/oss": { target: "https://oss.example.com", rewrite: "/oss" }
     }
   }
 };
 ```
 
-- **rewrite 优先级**：`对象.rewrite > rewriteRules[path] > path 本身`
-- **路径推导**：若键为 `v3|v2|v1` 使用预设；否则将键规范化为 `/{key}`
-- **类型**：`ProxyTarget = { v1?: string; v2?: string; v3?: string } & Record<string, string | { target: string; path?: string; rewrite?: string }>`
+- **Rewrite priority**: `object.rewrite > rewriteRules[path] > path itself`
+- **Path derivation**: If key is `v3|v2|v1` use preset; otherwise normalize key to `/{key}`
+- **Type**: `ProxyTarget = { v1?: string; v2?: string; v3?: string } & Record<string, string | { target: string; path?: string; rewrite?: string }>`
 
-### 迁移指南（从固定 v1/v2/v3 升级）
+### Migration Guide (Upgrading from Fixed v1/v2/v3)
 
-- 原有 `v1/v2/v3` 写法可原样保留，无需修改。
-- 若需要更多路由，直接在 `targets` 中新增任意键；建议使用对象形式以便精细控制。
-- 如需自定义重写，可使用对象形式的 `rewrite`，或在 `rewriteRules` 中按路径定义。
+- The original `v1/v2/v3` syntax can be kept as-is, no changes needed.
+- If you need more routes, simply add arbitrary keys in `targets`; object form is recommended for fine-grained control.
+- For custom rewrites, use the object form's `rewrite`, or define in `rewriteRules` by path.
 
-### 自定义环境枚举/字符串环境
+### Custom Environment Enum/String Environment
 
-你可以使用自定义的环境枚举，或直接使用字符串字面量作为环境键。插件的 API 和类型对两种写法都友好：
+You can use custom environment enums, or directly use string literals as environment keys. The plugin's API and types are friendly to both approaches:
 
 ```ts
-// 枚举方式（推荐有明确环境集合时）
+// Enum approach (recommended when you have a clear set of environments)
 import { defineConfig } from "vite";
 import { createProxyPlugin } from "vite-enhanced-proxy";
 
@@ -294,7 +308,7 @@ export default defineConfig({
 ```
 
 ```ts
-// 字符串字面量方式（快速/灵活）
+// String literal approach (quick/flexible)
 import { defineConfig } from "vite";
 import { createProxyPlugin } from "vite-enhanced-proxy";
 
@@ -321,44 +335,44 @@ export default defineConfig({
 });
 ```
 
-要点：
+Key points:
 
-- `createProxyPlugin<TEnv extends string>` 泛型参数声明你的环境键集合，获得完整的类型提示与校验。
-- `updateEnvironment(env: TEnv)`、`updateTargets(...)` 等方法同样受你的自定义环境类型约束。
-- 当未提供 `env` 时，默认使用 `Local`（与旧行为保持一致）。
+- `createProxyPlugin<TEnv extends string>` generic parameter declares your environment key set, providing complete type hints and validation.
+- Methods like `updateEnvironment(env: TEnv)`, `updateTargets(...)` are also constrained by your custom environment type.
+- When `env` is not provided, defaults to `Local` (consistent with old behavior).
 
-## 🎨 日志输出示例
+## 🎨 Log Output Examples
 
 ```bash
-# 正常请求
-2024-01-15 14:30:25 [Proxy] [GET   ] 🚀 代理到: http://localhost:8000/api/v3/backend/user
+# Normal request
+2024-01-15 14:30:25 [Proxy] [GET   ] 🚀 Proxying to: http://localhost:8000/api/v3/backend/user
 2024-01-15 14:30:25 [Proxy] [GET   ] ✅ 200 http://localhost:8000/api/v3/backend/user (156ms)
 
-# 错误请求
-2024-01-15 14:30:26 [Proxy] [POST  ] 🚀 代理到: http://localhost:8000/api/v3/backend/login
+# Error request
+2024-01-15 14:30:26 [Proxy] [POST  ] 🚀 Proxying to: http://localhost:8000/api/v3/backend/login
 2024-01-15 14:30:26 [Proxy] [POST  ] ❌ 404 http://localhost:8000/api/v3/backend/login (89ms)
 
-# 代理错误
-2024-01-15 14:30:27 [Proxy] [GET   ] 💥 代理错误: http://localhost:8000/api/v3/backend/test - ECONNREFUSED
+# Proxy error
+2024-01-15 14:30:27 [Proxy] [GET   ] 💥 Proxy error: http://localhost:8000/api/v3/backend/test - ECONNREFUSED
 
-# 详细日志示例（启用DEBUG级别时）
-2024-01-15 14:30:28 [Proxy] [POST  ] 📤 详细请求: http://localhost:8000/api/v3/backend/login
-  查询参数: {"redirect": "/dashboard"}
-  请求头:
+# Detailed log example (when DEBUG level is enabled)
+2024-01-15 14:30:28 [Proxy] [POST  ] 📤 Detailed request: http://localhost:8000/api/v3/backend/login
+  Query params: {"redirect": "/dashboard"}
+  Request headers:
     content-type: application/json
     authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
-  请求体: {
+  Request body: {
     "username": "admin",
     "password": "******"
   }
 
-2024-01-15 14:30:28 [Proxy] [POST  ] 📥 ✅ 详细响应: 200 http://localhost:8000/api/v3/backend/login (134ms)
-  响应头:
+2024-01-15 14:30:28 [Proxy] [POST  ] 📥 ✅ Detailed response: 200 http://localhost:8000/api/v3/backend/login (134ms)
+  Response headers:
     content-type: application/json
     set-cookie: session=abc123; Path=/; HttpOnly
-  响应体: {
+  Response body: {
     "code": 200,
-    "message": "登录成功",
+    "message": "Login successful",
     "data": {
       "user": {
         "id": 1,
@@ -369,63 +383,157 @@ export default defineConfig({
   }
 ```
 
-## 🔧 高级用法
+## 🔧 Advanced Usage
 
-### 使用过滤器
+### Using Filters
 
 ```typescript
 createProxyPlugin({
   env: ProxyEnv.Local,
 
-  // 只记录 POST 请求
+  // Only log POST requests
   requestFilter: (url, method) => method === "POST",
 
-  // 只记录错误响应
+  // Only log error responses
   responseFilter: (url, method, status) => status >= 400
 });
 ```
 
-### 使用中间件
+### Using Middleware
 
 ```typescript
 createProxyPlugin({
   env: ProxyEnv.Local,
   middleware: [
-    // 添加认证头
+    // Add authentication header
     async (proxyReq, req, res, options) => {
       proxyReq.setHeader("Authorization", "Bearer " + getToken());
     },
 
-    // 记录请求时间
+    // Record request time
     async (proxyReq, req, res, options) => {
-      console.log(`请求时间: ${new Date().toISOString()}`);
+      console.log(`Request time: ${new Date().toISOString()}`);
     }
   ]
 });
 ```
 
-### 自定义代理目标（动态键 + 对象化配置）
+### WebSocket Proxy Support
 
 ```typescript
 createProxyPlugin({
   env: ProxyEnv.Local,
   targets: {
     [ProxyEnv.Local]: {
-      // 兼容旧字段
+      // WebSocket proxy configuration
+      "/ws": {
+        target: "ws://localhost:3000",
+        ws: {
+          enabled: true,
+          logConnections: true,
+          logMessages: true,
+          maxMessageLength: 2000,
+          prettifyMessages: true,
+          timeout: 30000
+        }
+      }
+    }
+  },
+  // WebSocket middleware
+  wsMiddleware: [
+    async (ws, req, socket, head) => {
+      // Execute when WebSocket connection is established
+      console.log("WebSocket connection established:", req.url);
+    }
+  ],
+  // WebSocket filter
+  webSocketFilter: (url, protocols) => {
+    // Only proxy specific WebSocket connections
+    return url.startsWith("/ws/");
+  },
+  // Global WebSocket configuration
+  webSocket: {
+    enabled: true,
+    logConnections: true,
+    logMessages: true
+  },
+  // WebSocket log configuration
+  logger: {
+    showWsConnections: true,
+    showWsMessages: true,
+    maxWsMessageLength: 2000
+  }
+});
+```
+
+### SSE (Server-Sent Events) Proxy Support
+
+```typescript
+createProxyPlugin({
+  env: ProxyEnv.Local,
+  targets: {
+    [ProxyEnv.Local]: {
+      // SSE proxy configuration
+      "/events": {
+        target: "http://localhost:3000",
+        sse: {
+          enabled: true,
+          logConnections: true,
+          logMessages: true,
+          maxMessageLength: 2000,
+          prettifyMessages: true,
+          retryInterval: 3000,
+          headers: {
+            "Cache-Control": "no-cache"
+          }
+        }
+      }
+    }
+  },
+  // SSE middleware
+  sseMiddleware: [
+    async (proxyReq, req, res, options) => {
+      // Execute before SSE request is sent
+      proxyReq.setHeader("Authorization", "Bearer " + getToken());
+    }
+  ],
+  // Global SSE configuration
+  sse: {
+    enabled: true,
+    logConnections: true,
+    logMessages: true
+  },
+  // SSE log configuration
+  logger: {
+    showSseConnections: true,
+    showSseMessages: true,
+    maxSseMessageLength: 2000
+  }
+});
+```
+
+### Custom Proxy Targets (Dynamic Keys + Object-based Configuration)
+
+```typescript
+createProxyPlugin({
+  env: ProxyEnv.Local,
+  targets: {
+    [ProxyEnv.Local]: {
+      // Compatible with old fields
       v3: "http://my-custom-server:8000/api/v3/backend",
       v2: "http://my-custom-server:8000/api/backend",
 
-      // 任意键（字符串）
+      // Arbitrary keys (string)
       flow: "http://my-custom-server:8002",
 
-      // 对象形式：自定义 path 与 rewrite
+      // Object form: custom path and rewrite
       auth: { target: "http://my-auth:9000", path: "/api/auth", rewrite: "/auth" },
 
-      // 直接以路径作为键
+      // Use path directly as key
       "/oss": { target: "https://oss.example.com", rewrite: "/oss" }
     }
   },
-  // 可选：统一重写规则（按路径匹配），对象.rewrite 优先级更高
+  // Optional: unified rewrite rules (matched by path), object.rewrite has higher priority
   rewriteRules: {
     "/flow": "/",
     "/api": "/api"
@@ -433,7 +541,7 @@ createProxyPlugin({
 });
 ```
 
-### 运行时控制
+### Runtime Control
 
 ```typescript
 import { ViteProxyPlugin } from "vite-enhanced-proxy";
@@ -442,20 +550,20 @@ const plugin = new ViteProxyPlugin({
   env: ProxyEnv.Local
 });
 
-// 切换环境
+// Switch environment
 plugin.updateEnvironment(ProxyEnv.Local);
 
-// 禁用代理
+// Disable proxy
 plugin.disableProxy();
 
-// 获取状态
+// Get state
 const state = plugin.getState();
-console.log("当前环境:", state.env);
+console.log("Current environment:", state.env);
 ```
 
-## 🔧 外部配置文件（loadExternalProxyConfig）
+## 🔧 External Configuration File (loadExternalProxyConfig)
 
-插件会在项目根目录自动查找以下任一文件并加载：
+The plugin automatically searches for and loads any of the following files in the project root:
 
 - `proxy.config.ts`
 - `proxy.config.js`
@@ -463,21 +571,22 @@ console.log("当前环境:", state.env);
 - `proxy.config.mjs`
 - `proxy.config.json`
 
-规则与行为：
+Rules and behavior:
 
-- **查找顺序**按上表从上到下，命中即停止。
-- 非 JSON 文件通过动态 import 加载，支持 `default` 导出或直接导出对象。
-- JSON 文件使用 `JSON.parse` 读取。
-- 加载成功后与内联插件参数合并，**外部配置优先**，随后插件会自动重新初始化状态与日志器。
+- **Search order** is top to bottom as listed above, stops on first match.
+- Non-JSON files are loaded via dynamic import, supporting `default` export or direct object export.
+- JSON files are read using `JSON.parse`.
+- After successful loading, merged with inline plugin parameters, **external configuration takes priority**, then the plugin automatically reinitializes state and logger.
 
-类型：外部配置的结构与 `ProxyPluginOptions<TEnv>` 一致，可直接复用 README 上文的 `targets`、`logger` 等字段。
+Type: The structure of external configuration is consistent with `ProxyPluginOptions<TEnv>`, can directly reuse fields like `targets`, `logger`, etc. from the README above.
 
-### TS 示例（proxy.config.ts）
+### TS Example (proxy.config.ts)
 
 ```ts
-import { defineProxyConfig, LogLevel } from "vite-enhanced-proxy";
+import { LogLevel } from "vite-enhanced-proxy";
 
-export default defineProxyConfig({
+// Can directly export configuration object, or use type hints
+export default {
   env: "dev",
   logger: { level: LogLevel.INFO },
   targets: {
@@ -493,12 +602,12 @@ export default defineProxyConfig({
   rewriteRules: {
     "/flow": "/"
   }
-});
+};
 ```
 
-- 你也可以不使用 `defineProxyConfig`，直接 `export default { ... }`。
+- Note: The `defineProxyConfig` function is mainly for type hints, not required. You can directly `export default { ... }`.
 
-### ESM 示例（proxy.config.mjs）
+### ESM Example (proxy.config.mjs)
 
 ```js
 export default {
@@ -511,7 +620,7 @@ export default {
 };
 ```
 
-### CommonJS 示例（proxy.config.cjs / proxy.config.js）
+### CommonJS Example (proxy.config.cjs / proxy.config.js)
 
 ```js
 module.exports = {
@@ -525,7 +634,7 @@ module.exports = {
 };
 ```
 
-或使用默认导出形式：
+Or using default export form:
 
 ```js
 exports.default = {
@@ -538,7 +647,7 @@ exports.default = {
 };
 ```
 
-### JSON 示例（proxy.config.json）
+### JSON Example (proxy.config.json)
 
 ```json
 {
@@ -547,7 +656,24 @@ exports.default = {
     "dev": {
       "v3": "http://localhost:8000/api/v3/backend",
       "flow": "http://localhost:8002",
-      "auth": { "target": "http://localhost:7001", "path": "/api/auth", "rewrite": "/" }
+      "auth": { "target": "http://localhost:7001", "path": "/api/auth", "rewrite": "/" },
+      "/ws": {
+        "target": "ws://localhost:3000",
+        "ws": {
+          "enabled": true,
+          "logConnections": true,
+          "logMessages": true
+        }
+      },
+      "/events": {
+        "target": "http://localhost:3000",
+        "sse": {
+          "enabled": true,
+          "logConnections": true,
+          "logMessages": true,
+          "retryInterval": 3000
+        }
+      }
     }
   },
   "rewriteRules": {
@@ -556,58 +682,91 @@ exports.default = {
 }
 ```
 
-注意：JSON 中无法书写注释，且不支持函数/枚举常量；若需要更灵活的表达（如引用 `LogLevel`、编写函数中间件等），请使用 TS/JS 形式。
+Note: JSON cannot contain comments and does not support functions/enum constants; if you need more flexible expressions (like referencing `LogLevel`, writing function middleware, etc.), please use TS/JS form.
 
-## 🎯 API 参考
+## 🎯 API Reference
 
 ### createProxyPlugin(options?)
 
-创建代理插件实例。
+Create a proxy plugin instance.
 
-**参数：**
+**Parameters:**
 
-- `options` - 可选的配置选项
+- `options` - Optional configuration options
 
-**返回：**
+**Returns:**
 
-- Vite Plugin 对象
+- Vite Plugin object
 
 ### ViteProxyPlugin
 
-插件类，用于高级控制。
+Plugin class for advanced control.
 
-**方法：**
+**Methods:**
 
-- `updateEnvironment(env)` - 切换环境
-- `updateTargets(targets)` - 更新代理目标
-- `enableProxy()` - 启用代理
-- `disableProxy()` - 禁用代理
-- `getState()` - 获取当前状态
+- `updateEnvironment(env)` - Switch environment
+- `updateTargets(targets)` - Update proxy targets
+- `enableProxy()` - Enable proxy
+- `disableProxy()` - Disable proxy
+- `getState()` - Get current state
 
 ### ProxyLogger
 
-日志工具类。
+Logging utility class.
 
-**方法：**
+**Methods:**
 
-- `debug(message)` - 调试日志
-- `info(message)` - 信息日志
-- `warn(message)` - 警告日志
-- `error(message)` - 错误日志
-- `logRequest(method, url)` - 记录请求
-- `logResponse(method, url, status, duration?)` - 记录响应
-- `logError(method, url, error)` - 记录错误
+- `debug(message)` - Debug log
+- `info(message)` - Info log
+- `warn(message)` - Warning log
+- `error(message)` - Error log
+- `logRequest(method, url)` - Log request
+- `logResponse(method, url, status, duration?)` - Log response
+- `logError(method, url, error)` - Log error
+- `logWebSocketConnection(url, protocols?)` - Log WebSocket connection
+- `logWebSocketMessage(url, message, direction)` - Log WebSocket message
+- `logSSEConnection(method, url)` - Log SSE connection
+- `logSSEMessage(url, message)` - Log SSE message
 
-## 🐛 故障排除
+### WebSocketConfig
 
-### 颜色不显示
+WebSocket configuration options.
+
+**Properties:**
+
+- `enabled` - Whether to enable WebSocket proxy (default: `true`)
+- `timeout` - WebSocket connection timeout (milliseconds)
+- `logConnections` - Whether to log connections (default: `false`)
+- `logMessages` - Whether to log messages (default: `false`)
+- `maxMessageLength` - Maximum message log length (default: `1000`)
+- `prettifyMessages` - Whether to prettify JSON messages (default: `true`)
+- `headers` - Custom WebSocket headers
+- `protocols` - WebSocket subprotocols
+
+### SSEConfig
+
+SSE (Server-Sent Events) configuration options.
+
+**Properties:**
+
+- `enabled` - Whether to enable SSE proxy (default: `true`)
+- `logConnections` - Whether to log connections (default: `false`)
+- `logMessages` - Whether to log messages (default: `false`)
+- `maxMessageLength` - Maximum message log length (default: `1000`)
+- `prettifyMessages` - Whether to prettify JSON messages (default: `true`)
+- `headers` - Custom SSE response headers
+- `retryInterval` - SSE reconnection interval (milliseconds, default: `3000`)
+
+## 🐛 Troubleshooting
+
+### Colors Not Displaying
 
 ```typescript
-// 检查环境变量
+// Check environment variables
 process.env.NO_COLOR = undefined;
 process.env.FORCE_COLOR = "1";
 
-// 或者在配置中禁用颜色
+// Or disable colors in configuration
 createProxyPlugin({
   logger: {
     colorful: false
@@ -615,31 +774,31 @@ createProxyPlugin({
 });
 ```
 
-### 代理不工作
+### Proxy Not Working
 
-1. 检查 `enabled` 选项是否为 `true`
-2. 确认环境配置正确
-3. 检查目标服务器是否可访问
+1. Check if `enabled` option is `true`
+2. Confirm environment configuration is correct
+3. Check if target server is accessible
 
-### 日志过多
+### Too Many Logs
 
 ```typescript
-// 调整日志级别
+// Adjust log level
 createProxyPlugin({
   logger: {
-    level: LogLevel.ERROR // 只显示错误
+    level: LogLevel.ERROR // Only show errors
   }
 });
 
-// 或使用过滤器
+// Or use filters
 createProxyPlugin({
-  requestFilter: url => url.includes("/重要接口/")
+  requestFilter: url => url.includes("/important-endpoint/")
 });
 
-// 禁用详细信息
+// Disable detailed information
 createProxyPlugin({
   logger: {
-    level: LogLevel.INFO, // 使用INFO级别，不显示详细信息
+    level: LogLevel.INFO, // Use INFO level, don't show detailed information
     showRequestHeaders: false,
     showRequestBody: false,
     showResponseHeaders: false,
@@ -648,17 +807,17 @@ createProxyPlugin({
 });
 ```
 
-### 详细日志性能影响
+### Detailed Log Performance Impact
 
-当启用详细日志功能时，请注意：
+When detailed logging is enabled, please note:
 
-1. **性能影响**: 详细日志会增加内存使用和CPU消耗，特别是在高频请求时
-2. **推荐设置**: 在生产环境中建议设置 `level: LogLevel.ERROR` 或更高级别
-3. **数据长度限制**: 使用 `maxBodyLength` 控制显示的数据长度，避免控制台输出过长
-4. **选择性启用**: 根据调试需要选择性启用特定的详细信息选项
+1. **Performance Impact**: Detailed logs will increase memory usage and CPU consumption, especially during high-frequency requests
+2. **Recommended Settings**: In production environments, it's recommended to set `level: LogLevel.ERROR` or higher
+3. **Data Length Limit**: Use `maxBodyLength` to control displayed data length, avoid overly long console output
+4. **Selective Enablement**: Selectively enable specific detailed information options based on debugging needs
 
 ```typescript
-// 生产环境推荐配置
+// Production environment recommended configuration
 createProxyPlugin({
   logger: {
     level: LogLevel.ERROR,
@@ -668,14 +827,14 @@ createProxyPlugin({
     showResponseHeaders: false,
     showResponseBody: false
   },
-  devOnly: true // 仅在开发模式启用
+  devOnly: true // Enable only in development mode
 });
 ```
 
-## 📄 许可证
+## 📄 License
 
 MIT License
 
-## 🤝 贡献
+## 🤝 Contributing
 
-欢迎提交 Issue 和 Pull Request！
+Issues and Pull Requests are welcome!
