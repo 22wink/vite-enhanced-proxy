@@ -16,17 +16,6 @@ export default defineConfig({
       // 代理目标配置
       targets: {
         [MyEnv.Local]: {
-          // HTTP 代理 - 代理所有 /api 请求到后端服务器
-          "/api": {
-            target: "http://localhost:3001/api",
-            // 启用 SSE 支持
-            sse: {
-              enabled: true,
-              logConnections: true,
-              logMessages: true,
-              retryInterval: 3000
-            }
-          },
           // HTTPS 代理 - 代理所有 /api-https 请求到 HTTPS 后端服务器
           "/api-https": {
             target: "https://localhost:3002/api",
@@ -41,6 +30,17 @@ export default defineConfig({
             customProxyConfig: {
               secure: false,
               rejectUnauthorized: false
+            }
+          },
+          // HTTP 代理 - 代理所有 /api 请求到后端服务器
+          "/api": {
+            target: "http://localhost:3001/api",
+            // 启用 SSE 支持
+            sse: {
+              enabled: true,
+              logConnections: true,
+              logMessages: true,
+              retryInterval: 3000
             }
           },
           // WebSocket 代理 - 代理所有 /ws 请求到 WebSocket 服务器
@@ -76,7 +76,7 @@ export default defineConfig({
         timestamp: true,
         showMethod: true,
         showStatus: true,
-        prefix: "[SSE测试]",
+        prefix: "[代理测试]",
         // SSE 相关日志配置
         showSseConnections: true,
         showSseMessages: true,

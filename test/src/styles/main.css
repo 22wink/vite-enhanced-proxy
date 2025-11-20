@@ -1,0 +1,411 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: white;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.controls {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.btn-connect {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-connect:hover {
+  background: #45a049;
+}
+
+.btn-disconnect {
+  background: #f44336;
+  color: white;
+}
+
+.btn-disconnect:hover {
+  background: #da190b;
+}
+
+.btn-broadcast {
+  background: #2196f3;
+  color: white;
+}
+
+.btn-broadcast:hover {
+  background: #0b7dda;
+}
+
+.btn-clear {
+  background: #ff9800;
+  color: white;
+}
+
+.btn-clear:hover {
+  background: #e68900;
+}
+
+.status {
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.status.connected {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status.disconnected {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status.connecting {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.endpoint-selector {
+  margin-bottom: 15px;
+}
+
+.endpoint-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.endpoint-selector select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.messages {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.messages h2 {
+  margin-bottom: 15px;
+  color: #333;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.message {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  background: #f8f9fa;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.message.connected {
+  border-left-color: #4caf50;
+  background: #d4edda;
+}
+
+.message.error {
+  border-left-color: #f44336;
+  background: #f8d7da;
+}
+
+.message.broadcast {
+  border-left-color: #2196f3;
+  background: #e3f2fd;
+}
+.message.ws {
+  border-left-color: #00bcd4;
+  background: #e0f7fa;
+}
+.message.ws .message-type {
+  color: #00bcd4;
+}
+.message.wss {
+  border-left-color: #3f51b5;
+  background: #e8eaf6;
+}
+.message.wss .message-type {
+  color: #3f51b5;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.message-type {
+  font-weight: 600;
+  color: #667eea;
+}
+
+.message.connected .message-type {
+  color: #4caf50;
+}
+
+.message.error .message-type {
+  color: #f44336;
+}
+
+.message-content {
+  color: #333;
+  word-break: break-word;
+}
+
+.message-data {
+  margin-top: 8px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card h3 {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.stat-card .value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tab {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f0f0f0;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.tab.active {
+  background: #667eea;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+}
+
+.btn-send {
+  background: #9c27b0;
+  color: white;
+}
+
+.btn-send:hover {
+  background: #7b1fa2;
+}
+
+.message.proxy {
+  border-left-color: #9c27b0;
+  background: #f3e5f5;
+}
+
+.message.proxy .message-type {
+  color: #9c27b0;
+}
+.hint {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.4;
+}
+
+.request-info {
+  margin-top: 8px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+}
+
+.request-info .info-row {
+  margin-bottom: 4px;
+  display: flex;
+  gap: 10px;
+}
+
+.request-info .info-label {
+  font-weight: 600;
+  color: #666;
+  min-width: 80px;
+}
+
+.response-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.response-status.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.response-status.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+

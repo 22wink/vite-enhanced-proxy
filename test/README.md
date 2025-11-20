@@ -1,105 +1,93 @@
-# SSE 测试环境
+# Test 应用（SSE & Proxy Playground）
 
-这个目录包含用于测试 vite-enhanced-proxy 插件 SSE 功能的完整测试环境。
+`test/` 目录现在是一个完整的 Vite + TypeScript 工程，用于验证 `vite-enhanced-proxy` 在 SSE、HTTPS、WS/WSS 等场景下的表现。它包含一个带自签名证书的多协议后端以及可视化前端控制台。
 
 ## 目录结构
 
-```
-test-sse/
-├── server.js          # Express 后端服务器（提供 SSE 端点）
-├── index.html         # 前端测试页面
-├── vite.config.ts     # Vite 配置（使用代理插件）
-├── package.json       # 测试项目依赖
-└── README.md          # 本文件
+```text
+test/
+├── server/
+│   ├── src/             # TypeScript 源码（SSE / WS / HTTP(S) 模块化拆分）
+│   └── dist/            # `npm run server:build` 输出
+├── src/
+│   ├── main.ts          # 前端入口，协调状态和交互
+│   ├── modules/         # 功能模块（SSE/WS 客户端、代理调试、UI 工具等）
+│   └── styles/          # 独立样式文件
+├── index.html           # Vite HTML 模板（语义化 DOM）
+├── vite.config.ts       # 使用 vite-enhanced-proxy 的配置
+├── package.json         # 测试工程依赖和脚本
+└── README.md            # 本文件
 ```
 
 ## 快速开始
 
-### 1. 构建插件（如果尚未构建）
+1. **在仓库根目录构建插件（如有必要）**
 
-在项目根目录运行：
+   ```bash
+   npm run build
+   ```
 
-```bash
-npm run build
-```
+2. **安装测试工程依赖**
 
-### 2. 安装测试环境依赖
+   ```bash
+   cd test
+   npm install
+   ```
 
-```bash
-cd test-sse
-npm install
-```
+3. **一键启动（推荐）**
 
-这将安装测试所需的依赖，并链接本地插件。
+   ```bash
+   npm start
+   ```
 
-### 3. 启动后端服务器
+   - `npm run server:dev`：启动 HTTP/HTTPS/SSE/WS/WSS 后端并自动生成自签名证书
+   - `npm run dev`：启动 Vite 前端，端口 `5173`
 
-在一个终端窗口中运行：
+> 也可以在两个终端分别运行 `npm run server:dev` 和 `npm run dev`；或使用 `npm run server:start` 启动编译后的产物。
 
-```bash
-npm run server
-```
+## 可用脚本
 
-后端服务器将在 `http://localhost:3001` 启动，提供以下 SSE 端点：
+| 命令                | 说明                                             |
+| ------------------- | ------------------------------------------------ |
+| `npm run server:dev`| 直接使用 `tsx` 运行 TypeScript 后端（热重载体验） |
+| `npm run server:build` | 编译后端到 `server/dist`                        |
+| `npm run server:start` | 以 Node.js 运行编译后的后端                      |
+| `npm run dev`       | 启动 Vite 前端（使用代理插件）                     |
+| `npm run build`     | 生产构建前端                                      |
+| `npm run preview`   | 预览生产构建                                      |
+| `npm run start`     | 使用 concurrently 同时启动前后端                   |
 
-- `GET /api/sse` - 基础 SSE 端点（每 2 秒发送消息）
-- `GET /api/sse/custom-retry` - 自定义重试间隔的 SSE 端点
-- `GET /api/sse/error` - 错误测试端点（第 3 条消息会触发错误事件）
-- `POST /api/sse/broadcast` - 广播消息到所有连接的客户端
-- `GET /health` - 健康检查端点
+## 前端功能
 
-### 4. 启动前端开发服务器
+- **SSE 控制台**
+  - 多端点切换（基础、自定义重试、错误模拟）
+  - 连接状态/耗时/消息数实时统计
+  - 广播消息下发、自动日志滚动、JSON 高亮
+  - TypeScript 模块化：`sseClient`、`statusManager`、`messageLog`、`connectionTimer`
 
-在另一个终端窗口中运行：
+- **WebSocket 调试面板（新增）**
+  - 预设代理/直连端点，覆盖 `WS` 与 `WSS`
+  - 一键连接/断开/发送消息，自动解析 JSON
+  - 独立状态信息（连接状态、连接时长）与日志分类（WS/WSS）
+  - 自动落入统一的消息日志，方便与终端代理日志对照
 
-```bash
-npm run dev
-```
+- **代理调试面板**
+  - 自定义 method / body
+  - HTTPS 选项可视化（secure / rejectUnauthorized）
+  - 请求/响应详情（状态徽章、耗时、响应体、请求配置）
 
-Vite 开发服务器将在 `http://localhost:5173` 启动，并自动打开浏览器。
+## 后端端点速览
 
-**或者，使用一键启动（推荐）**：
+- `GET /api/sse`、`/api/sse/custom-retry`、`/api/sse/error`
+- `POST /api/sse/broadcast`
+- `GET /api/test`、`/api/http-test`、`/api/https-test`
+- `GET /health`
+- `WS ws://localhost:3003`（通过代理 `/ws`） / `WSS wss://localhost:3004`（通过代理 `/wss`）
 
-```bash
-npm start
-```
+## 调试提示
 
-这将同时启动后端服务器和前端开发服务器，使用不同颜色区分两个服务的日志输出。
+1. 前端所有请求都通过 `vite-enhanced-proxy`，可在终端观察彩色日志。
+2. HTTPS/WSS 使用自签名证书，可通过访问 `https://localhost:3002` 提前信任。
+3. 广播请求和代理请求的所有细节会落在统一的消息面板里，方便对照终端日志。
 
-**注意**：如果使用 `npm start`，确保先完成步骤 1 和 2（构建插件和安装依赖）。
-
-## 功能说明
-
-### 前端测试页面功能
-
-1. **连接 SSE** - 连接到选定的 SSE 端点
-2. **断开连接** - 断开当前的 SSE 连接
-3. **发送广播消息** - 向后端发送广播请求，后端会将消息推送给所有连接的客户端
-4. **清空消息** - 清空消息日志
-5. **选择端点** - 选择不同的 SSE 端点进行测试
-
-### 测试场景
-
-1. **基础 SSE 连接** - 测试基本的 SSE 连接和消息接收
-2. **自定义重试间隔** - 测试 SSE 重试配置
-3. **错误处理** - 测试 SSE 错误事件的接收和处理
-4. **广播消息** - 测试多客户端场景下的消息广播
-
-### 观察代理插件行为
-
-在运行测试时，你可以在终端中观察到：
-
-- ✅ SSE 连接建立日志
-- 📨 SSE 消息接收日志（包含 JSON 美化）
-- ❌ SSE 连接错误日志
-- 🔄 SSE 重连日志
-
-所有日志都会通过 vite-enhanced-proxy 插件进行记录和格式化。
-
-## 注意事项
-
-1. 确保后端服务器在 `http://localhost:3001` 运行
-2. 前端通过 Vite 代理访问后端，实际请求会被代理到 `http://localhost:3001`
-3. 可以在浏览器开发者工具的 Network 标签中查看 SSE 连接
-4. 查看终端输出以观察代理插件的日志记录
-
+Enjoy hacking ✨

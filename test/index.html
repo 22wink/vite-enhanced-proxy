@@ -1,798 +1,188 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>代理测试页面</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      color: white;
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 2.5em;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-
-    .controls {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-
-    button {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    .btn-connect {
-      background: #4CAF50;
-      color: white;
-    }
-
-    .btn-connect:hover {
-      background: #45a049;
-    }
-
-    .btn-disconnect {
-      background: #f44336;
-      color: white;
-    }
-
-    .btn-disconnect:hover {
-      background: #da190b;
-    }
-
-    .btn-broadcast {
-      background: #2196F3;
-      color: white;
-    }
-
-    .btn-broadcast:hover {
-      background: #0b7dda;
-    }
-
-    .btn-clear {
-      background: #ff9800;
-      color: white;
-    }
-
-    .btn-clear:hover {
-      background: #e68900;
-    }
-
-    .status {
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 15px;
-      font-weight: 600;
-    }
-
-    .status.connected {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-
-    .status.disconnected {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-
-    .status.connecting {
-      background: #fff3cd;
-      color: #856404;
-      border: 1px solid #ffeaa7;
-    }
-
-    .endpoint-selector {
-      margin-bottom: 15px;
-    }
-
-    .endpoint-selector label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .endpoint-selector select {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #ddd;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-
-    .messages {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      max-height: 500px;
-      overflow-y: auto;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .messages h2 {
-      margin-bottom: 15px;
-      color: #333;
-      border-bottom: 2px solid #667eea;
-      padding-bottom: 10px;
-    }
-
-    .message {
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      border-left: 4px solid #667eea;
-      background: #f8f9fa;
-      animation: slideIn 0.3s ease-out;
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    .message.connected {
-      border-left-color: #4CAF50;
-      background: #d4edda;
-    }
-
-    .message.error {
-      border-left-color: #f44336;
-      background: #f8d7da;
-    }
-
-    .message.broadcast {
-      border-left-color: #2196F3;
-      background: #e3f2fd;
-    }
-
-    .message-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 12px;
-      color: #666;
-    }
-
-    .message-type {
-      font-weight: 600;
-      color: #667eea;
-    }
-
-    .message.connected .message-type {
-      color: #4CAF50;
-    }
-
-    .message.error .message-type {
-      color: #f44336;
-    }
-
-    .message-content {
-      color: #333;
-      word-break: break-word;
-    }
-
-    .message-data {
-      margin-top: 8px;
-      padding: 8px;
-      background: white;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      white-space: pre-wrap;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .stat-card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .stat-card h3 {
-      color: #666;
-      font-size: 14px;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-    }
-
-    .stat-card .value {
-      font-size: 32px;
-      font-weight: 700;
-      color: #667eea;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      background: white;
-      padding: 10px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-
-    .tab {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      background: #f0f0f0;
-      color: #666;
-      transition: all 0.3s;
-    }
-
-    .tab.active {
-      background: #667eea;
-      color: white;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #ddd;
-      border-radius: 6px;
-      font-size: 16px;
-      font-family: inherit;
-    }
-
-    .form-group textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .checkbox-group input[type="checkbox"] {
-      width: auto;
-    }
-
-    .btn-send {
-      background: #9c27b0;
-      color: white;
-    }
-
-    .btn-send:hover {
-      background: #7b1fa2;
-    }
-
-    .message.proxy {
-      border-left-color: #9c27b0;
-      background: #f3e5f5;
-    }
-
-    .message.proxy .message-type {
-      color: #9c27b0;
-    }
-
-    .request-info {
-      margin-top: 8px;
-      padding: 8px;
-      background: white;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-    }
-
-    .request-info .info-row {
-      margin-bottom: 4px;
-      display: flex;
-      gap: 10px;
-    }
-
-    .request-info .info-label {
-      font-weight: 600;
-      color: #666;
-      min-width: 80px;
-    }
-
-    .response-status {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-weight: 600;
-      font-size: 12px;
-    }
-
-    .response-status.success {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .response-status.error {
-      background: #f8d7da;
-      color: #721c24;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>🚀代理测试</h1>
-
-    <div class="tabs">
-      <button class="tab active" data-tab="sse">SSE 测试</button>
-      <button class="tab" data-tab="proxy">代理测试</button>
-    </div>
-
-    <!-- SSE 测试标签页 -->
-    <div class="tab-content active" id="sse-tab">
-      <div class="stats">
-        <div class="stat-card">
-          <h3>连接状态</h3>
-          <div class="value" id="connectionStatus">未连接</div>
-        </div>
-        <div class="stat-card">
-          <h3>接收消息数</h3>
-          <div class="value" id="messageCount">0</div>
-        </div>
-        <div class="stat-card">
-          <h3>连接时长</h3>
-          <div class="value" id="connectionTime">0s</div>
-        </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>代理测试页面</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚀代理测试</h1>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="sse">SSE 测试</button>
+        <button class="tab" data-tab="ws">WebSocket 测试</button>
+        <button class="tab" data-tab="proxy">代理测试</button>
       </div>
 
-      <div class="controls">
-        <div class="endpoint-selector">
-          <label for="endpoint">选择 SSE 端点:</label>
-          <select id="endpoint">
-            <option value="/api/sse">基础 SSE 端点</option>
-            <option value="/api/sse/custom-retry">自定义重试间隔</option>
-            <option value="/api/sse/error">错误测试端点</option>
-          </select>
+      <!-- SSE 测试标签页 -->
+      <div class="tab-content active" id="sse-tab">
+        <div class="stats">
+          <div class="stat-card">
+            <h3>连接状态</h3>
+            <div class="value" id="connectionStatus">未连接</div>
+          </div>
+          <div class="stat-card">
+            <h3>接收消息数</h3>
+            <div class="value" id="messageCount">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>连接时长</h3>
+            <div class="value" id="connectionTime">0s</div>
+          </div>
         </div>
 
-        <div class="button-group">
-          <button class="btn-connect" id="connectBtn">连接 SSE</button>
-          <button class="btn-disconnect" id="disconnectBtn" disabled>断开连接</button>
-          <button class="btn-broadcast" id="broadcastBtn">发送广播消息</button>
-          <button class="btn-clear" id="clearBtn">清空消息</button>
-        </div>
-
-        <div class="status disconnected" id="status">
-          ⚠️ 未连接
-        </div>
-      </div>
-    </div>
-
-    <!-- 代理测试标签页 -->
-    <div class="tab-content" id="proxy-tab">
-      <div class="controls">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="proxyEndpoint">代理端点:</label>
-            <select id="proxyEndpoint">
-              <option value="/api/http-test">HTTP 代理测试 (/api)</option>
-              <option value="/api-https/https-test">HTTPS 代理测试 (/api-https)</option>
-              <option value="/api/test">普通 API 测试</option>
+        <div class="controls">
+          <div class="endpoint-selector">
+            <label for="endpoint">选择 SSE 端点:</label>
+            <select id="endpoint">
+              <option value="/api/sse">基础 SSE 端点</option>
+              <option value="/api/sse/custom-retry">自定义重试间隔</option>
+              <option value="/api/sse/error">错误测试端点</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="httpMethod">HTTP 方法:</label>
-            <select id="httpMethod">
-              <option value="GET">GET</option>
-              <option value="POST">POST</option>
-              <option value="PUT">PUT</option>
-              <option value="DELETE">DELETE</option>
-              <option value="PATCH">PATCH</option>
+
+          <div class="button-group">
+            <button class="btn-connect" id="connectBtn">连接 SSE</button>
+            <button class="btn-disconnect" id="disconnectBtn" disabled>断开连接</button>
+            <button class="btn-broadcast" id="broadcastBtn">发送广播消息</button>
+            <button class="btn-clear" id="clearBtn">清空消息</button>
+          </div>
+
+          <div class="status disconnected" id="status">⚠️ 未连接</div>
+        </div>
+      </div>
+
+      <!-- WebSocket 测试标签页 -->
+      <div class="tab-content" id="ws-tab">
+        <div class="stats">
+          <div class="stat-card">
+            <h3>连接状态</h3>
+            <div class="value" id="wsConnectionStatus">未连接</div>
+          </div>
+          <div class="stat-card">
+            <h3>连接时长</h3>
+            <div class="value" id="wsConnectionTime">0s</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="endpoint-selector">
+            <label for="wsEndpoint">选择 WebSocket 端点:</label>
+            <select id="wsEndpoint">
+              <option value="/ws" data-source="proxy" data-protocol="WS">
+                通过代理 - WS (/ws)
+              </option>
+              <option
+                value="ws://localhost:3003"
+                data-source="direct"
+                data-protocol="WS"
+              >
+                直连 - WS (ws://localhost:3003)
+              </option>
+              <option
+                value="/wss"
+                data-source="proxy"
+                data-protocol="WSS"
+                data-scheme="wss"
+              >
+                通过代理 - WSS (/wss, 需 HTTPS Dev Server)
+              </option>
+              <option
+                value="wss://localhost:3004"
+                data-source="direct"
+                data-protocol="WSS"
+              >
+                直连 - WSS (wss://localhost:3004)
+              </option>
             </select>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="requestBody">请求体 (JSON):</label>
-          <textarea id="requestBody" placeholder='{"key": "value"}'></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>HTTPS 选项 (仅用于 HTTPS 代理):</label>
-          <div class="checkbox-group">
-            <input type="checkbox" id="rejectUnauthorized" checked>
-            <label for="rejectUnauthorized">rejectUnauthorized (验证证书)</label>
+          <div class="form-group">
+            <label for="wsMessage">消息内容:</label>
+            <input
+              id="wsMessage"
+              type="text"
+              placeholder='{"action":"ping"} 或 任意文本'
+            />
           </div>
-          <div class="checkbox-group" style="margin-top: 8px;">
-            <input type="checkbox" id="secure" checked>
-            <label for="secure">secure (启用 TLS)</label>
+
+          <div class="button-group">
+            <button class="btn-connect" id="wsConnectBtn">
+              连接 WebSocket
+            </button>
+            <button class="btn-disconnect" id="wsDisconnectBtn" disabled>
+              断开连接
+            </button>
+            <button class="btn-send" id="wsSendBtn" disabled>
+              发送消息
+            </button>
+            <button class="btn-clear" id="wsClearBtn">清空日志</button>
+          </div>
+
+          <div class="status disconnected" id="wsStatus">⚠️ 未连接</div>
+          <p class="hint">
+            🔒 WSS 测试需要浏览器信任本地自签名证书，可通过
+            https://localhost:3002 访问一次接受风险。
+          </p>
+        </div>
+      </div>
+
+      <!-- 代理测试标签页 -->
+      <div class="tab-content" id="proxy-tab">
+        <div class="controls">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="proxyEndpoint">代理端点:</label>
+              <select id="proxyEndpoint">
+                <option value="/api/http-test">HTTP 代理测试 (/api)</option>
+                <option value="/api-https/https-test">HTTPS 代理测试 (/api-https)</option>
+                <option value="/api/test">普通 API 测试</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="httpMethod">HTTP 方法:</label>
+              <select id="httpMethod">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+                <option value="PATCH">PATCH</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="requestBody">请求体 (JSON):</label>
+            <textarea id="requestBody" placeholder='{"key": "value"}'></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>HTTPS 选项 (仅用于 HTTPS 代理):</label>
+            <div class="checkbox-group">
+              <input type="checkbox" id="rejectUnauthorized" checked />
+              <label for="rejectUnauthorized">rejectUnauthorized (验证证书)</label>
+            </div>
+            <div class="checkbox-group" style="margin-top: 8px">
+              <input type="checkbox" id="secure" checked />
+              <label for="secure">secure (启用 TLS)</label>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button class="btn-send" id="sendProxyBtn">发送代理请求</button>
+            <button class="btn-clear" id="clearProxyBtn">清空日志</button>
           </div>
         </div>
+      </div>
 
-        <div class="button-group">
-          <button class="btn-send" id="sendProxyBtn">发送代理请求</button>
-          <button class="btn-clear" id="clearProxyBtn">清空日志</button>
-        </div>
+      <div class="messages">
+        <h2>📨 消息日志</h2>
+        <div id="messageList"></div>
       </div>
     </div>
 
-    <div class="messages">
-      <h2>📨 消息日志</h2>
-      <div id="messageList"></div>
-    </div>
-  </div>
-
-  <script type="module">
-    let eventSource = null;
-    let messageCount = 0;
-    let connectionStartTime = null;
-    let connectionTimer = null;
-
-    // 标签页切换
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const targetTab = tab.dataset.tab;
-        
-        tabs.forEach(t => t.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
-        
-        tab.classList.add('active');
-        document.getElementById(`${targetTab}-tab`).classList.add('active');
-      });
-    });
-
-    const connectBtn = document.getElementById('connectBtn');
-    const disconnectBtn = document.getElementById('disconnectBtn');
-    const broadcastBtn = document.getElementById('broadcastBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const endpointSelect = document.getElementById('endpoint');
-    const statusDiv = document.getElementById('status');
-    const messageList = document.getElementById('messageList');
-    const messageCountEl = document.getElementById('messageCount');
-    const connectionStatusEl = document.getElementById('connectionStatus');
-    const connectionTimeEl = document.getElementById('connectionTime');
-
-    // 代理测试相关元素
-    const sendProxyBtn = document.getElementById('sendProxyBtn');
-    const clearProxyBtn = document.getElementById('clearProxyBtn');
-    const proxyEndpointSelect = document.getElementById('proxyEndpoint');
-    const httpMethodSelect = document.getElementById('httpMethod');
-    const requestBodyTextarea = document.getElementById('requestBody');
-
-    function updateStatus(status, message) {
-      statusDiv.className = `status ${status}`;
-      statusDiv.textContent = message;
-      connectionStatusEl.textContent = status === 'connected' ? '已连接' : status === 'connecting' ? '连接中' : '未连接';
-    }
-
-    function addMessage(type, data, rawData, requestInfo) {
-      messageCount++;
-      messageCountEl.textContent = messageCount;
-
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${type}`;
-
-      const header = document.createElement('div');
-      header.className = 'message-header';
-      
-      let statusBadge = '';
-      if (type === 'proxy' && rawData && rawData.status) {
-        const statusClass = rawData.status >= 200 && rawData.status < 300 ? 'success' : 'error';
-        statusBadge = `<span class="response-status ${statusClass}">${rawData.status}</span>`;
-      }
-      
-      header.innerHTML = `
-        <span class="message-type">${type.toUpperCase()}</span>
-        <span>${statusBadge} ${new Date().toLocaleTimeString()}</span>
-      `;
-
-      const content = document.createElement('div');
-      content.className = 'message-content';
-      
-      if (type === 'proxy' && requestInfo) {
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'request-info';
-        infoDiv.innerHTML = `
-          <div class="info-row">
-            <span class="info-label">方法:</span>
-            <span>${requestInfo.method}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">URL:</span>
-            <span>${requestInfo.url}</span>
-          </div>
-          ${requestInfo.httpsOptions ? `
-          <div class="info-row">
-            <span class="info-label">HTTPS选项:</span>
-            <span>${JSON.stringify(requestInfo.httpsOptions)}</span>
-          </div>
-          ` : ''}
-        `;
-        content.appendChild(infoDiv);
-      }
-      
-      const textContent = document.createElement('div');
-      textContent.textContent = data.message || data || (rawData ? JSON.stringify(rawData, null, 2) : '');
-      content.appendChild(textContent);
-
-      messageDiv.appendChild(header);
-      messageDiv.appendChild(content);
-
-      if (rawData && type !== 'proxy') {
-        const dataDiv = document.createElement('div');
-        dataDiv.className = 'message-data';
-        dataDiv.textContent = JSON.stringify(rawData, null, 2);
-        messageDiv.appendChild(dataDiv);
-      } else if (type === 'proxy' && rawData && rawData.body) {
-        const dataDiv = document.createElement('div');
-        dataDiv.className = 'message-data';
-        dataDiv.textContent = typeof rawData.body === 'string' ? rawData.body : JSON.stringify(rawData.body, null, 2);
-        messageDiv.appendChild(dataDiv);
-      }
-
-      messageList.insertBefore(messageDiv, messageList.firstChild);
-    }
-
-    function startConnectionTimer() {
-      connectionStartTime = Date.now();
-      connectionTimer = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - connectionStartTime) / 1000);
-        connectionTimeEl.textContent = `${elapsed}s`;
-      }, 1000);
-    }
-
-    function stopConnectionTimer() {
-      if (connectionTimer) {
-        clearInterval(connectionTimer);
-        connectionTimer = null;
-      }
-      connectionTimeEl.textContent = '0s';
-    }
-
-    function connect() {
-      const endpoint = endpointSelect.value;
-      updateStatus('connecting', '🔄 正在连接...');
-
-      eventSource = new EventSource(endpoint);
-
-      eventSource.onopen = () => {
-        updateStatus('connected', '✅ SSE 连接已建立');
-        connectBtn.disabled = true;
-        disconnectBtn.disabled = false;
-        endpointSelect.disabled = true;
-        startConnectionTimer();
-        addMessage('connected', { message: 'SSE 连接已成功建立' });
-      };
-
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          addMessage('message', data, data);
-        } catch (e) {
-          addMessage('message', { message: event.data }, { raw: event.data });
-        }
-      };
-
-      eventSource.addEventListener('error', (event) => {
-        const data = JSON.parse(event.data);
-        addMessage('error', data, data);
-      });
-
-      eventSource.onerror = (error) => {
-        console.error('SSE 错误:', error);
-        updateStatus('disconnected', '❌ 连接错误');
-        addMessage('error', { message: 'SSE 连接发生错误' }, error);
-        disconnect();
-      };
-    }
-
-    function disconnect() {
-      if (eventSource) {
-        eventSource.close();
-        eventSource = null;
-      }
-      updateStatus('disconnected', '⚠️ 未连接');
-      connectBtn.disabled = false;
-      disconnectBtn.disabled = true;
-      endpointSelect.disabled = false;
-      stopConnectionTimer();
-      addMessage('disconnected', { message: 'SSE 连接已断开' });
-    }
-
-    async function broadcast() {
-      try {
-        const response = await fetch('/api/sse/broadcast', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: `广播消息 - ${new Date().toLocaleTimeString()}`
-          })
-        });
-
-        const data = await response.json();
-        addMessage('broadcast', data, data);
-      } catch (error) {
-        console.error('广播失败:', error);
-        addMessage('error', { message: '广播消息发送失败' }, error);
-      }
-    }
-
-    function clearMessages() {
-      messageList.innerHTML = '';
-      messageCount = 0;
-      messageCountEl.textContent = '0';
-    }
-
-    // 代理测试功能
-    async function sendProxyRequest() {
-      const endpoint = proxyEndpointSelect.value;
-      const method = httpMethodSelect.value;
-      const requestBody = requestBodyTextarea.value.trim();
-      const rejectUnauthorized = document.getElementById('rejectUnauthorized').checked;
-      const secure = document.getElementById('secure').checked;
-
-      const isHttps = endpoint.includes('https') || endpoint.includes('api-https');
-      const httpsOptions = isHttps ? {
-        rejectUnauthorized,
-        secure
-      } : null;
-
-      const requestInfo = {
-        method,
-        url: endpoint,
-        httpsOptions
-      };
-
-      addMessage('proxy', { message: `发送 ${method} 请求到 ${endpoint}...` }, null, requestInfo);
-
-      try {
-        const options = {
-          method,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        };
-
-        if (requestBody && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
-          try {
-            options.body = JSON.stringify(JSON.parse(requestBody));
-          } catch (e) {
-            options.body = requestBody;
-          }
-        }
-
-        const startTime = Date.now();
-        const response = await fetch(endpoint, options);
-        const duration = Date.now() - startTime;
-
-        let responseData;
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          responseData = await response.json();
-        } else {
-          responseData = await response.text();
-        }
-
-        addMessage('proxy', {
-          message: `${method} 请求成功`,
-          duration: `${duration}ms`
-        }, {
-          status: response.status,
-          statusText: response.statusText,
-          headers: Object.fromEntries(response.headers.entries()),
-          body: responseData
-        }, requestInfo);
-      } catch (error) {
-        console.error('代理请求失败:', error);
-        addMessage('error', {
-          message: `代理请求失败: ${error.message}`
-        }, {
-          error: error.message,
-          stack: error.stack
-        }, requestInfo);
-      }
-    }
-
-    function clearProxyMessages() {
-      clearMessages();
-    }
-
-    connectBtn.addEventListener('click', connect);
-    disconnectBtn.addEventListener('click', disconnect);
-    broadcastBtn.addEventListener('click', broadcast);
-    clearBtn.addEventListener('click', clearMessages);
-    sendProxyBtn.addEventListener('click', sendProxyRequest);
-    clearProxyBtn.addEventListener('click', clearProxyMessages);
-
-    // 页面卸载时断开连接
-    window.addEventListener('beforeunload', () => {
-      if (eventSource) {
-        eventSource.close();
-      }
-    });
-  </script>
-</body>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
 
