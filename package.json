@@ -21,7 +21,6 @@
     "build": "rimraf dist && tsup",
     "dev": "tsup --watch",
     "type-check": "tsc --noEmit",
-    "lint": "eslint .",
     "clean": "rimraf dist",
     "prepublishOnly": "npm run clean && npm run build",
     "docs:dev": "vitepress dev docs",
